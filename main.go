@@ -20,6 +20,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.Login)
 	r.HandleFunc("/do_callback", handler.DOCallback).Methods("GET")
+	r.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
+	r.HandleFunc("/keys", handler.CreateKey).Methods("POST")
 
 	n := negroni.Classic()
 	n.UseHandler(r)

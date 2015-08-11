@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -51,7 +50,6 @@ func (interactor DOInteractor) GetToken(code, id, secret, redirectURL string) (*
 	accessToken := domain.DOToken{}
 
 	err = decoder.Decode(&accessToken)
-	fmt.Printf("%#v\n", accessToken)
 	if err != nil {
 		return nil, err
 	}

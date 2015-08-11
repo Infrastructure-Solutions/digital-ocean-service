@@ -11,10 +11,16 @@ import (
 type DOInteractor interface {
 	GetOauthURL(id, redirectURI, scope string) string
 	GetToken(code, id, secret, redirectURL string) (*domain.DOToken, error)
+	ShowKeys(token string) ([]domain.Key, error)
+	CreateKey(name, publicKey, token string) (*domain.Key, error)
+}
+
+type UserRepo interface {
 }
 
 type WebServiceHandler struct {
 	Interactor  DOInteractor
+	UserRepo    UserRepo
 	ID          string
 	Secret      string
 	RedirectURI string
@@ -52,8 +58,53 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 		return
 	}
 
-	res.Header().Set("Content-Type", "text/html; charset=utf-8")
+	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
 	res.Write(b)
 
+}
+
+func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("token")
+	keys, err := handler.Interactor.ShowKeys(token)
+	if err != nil {
+		fmt.Println(err.Error())
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	keysB, _ := json.Marshal(keys)
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusOK)
+	res.Write(keysB)
+
+}
+
+func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Request) {
+
+	defer req.Body.Close()
+
+	token := req.Header.Get("token")
+
+	key := &domain.Key{}
+
+	decoder := json.NewDecoder(req.Body)
+
+	err := decoder.Decode(key)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	key, err = handler.Interactor.CreateKey(key.Name, key.PublicKey, token)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	keyB, _ := json.Marshal(key)
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	res.Write(keyB)
 }
