@@ -14,6 +14,7 @@ type DOInteractor interface {
 	ShowKeys(token string) ([]domain.Key, error)
 	CreateKey(name, publicKey, token string) (*domain.Key, error)
 	CreateDroplet(droplet domain.DropletRequest, token string) (*domain.Droplet, error)
+	ListDroplets(token string) ([]domain.Droplet, error)
 }
 
 type UserRepo interface {
@@ -135,4 +136,19 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(b)
+}
+
+func (handler WebServiceHandler) ListDroplets(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("token")
+
+	droplets, err := handler.Interactor.ListDroplets(token)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	dB, _ := json.Marshal(droplets)
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	res.Write(dB)
 }
