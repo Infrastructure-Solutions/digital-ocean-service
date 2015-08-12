@@ -13,6 +13,7 @@ type DOInteractor interface {
 	GetToken(code, id, secret, redirectURL string) (*domain.DOToken, error)
 	ShowKeys(token string) ([]domain.Key, error)
 	CreateKey(name, publicKey, token string) (*domain.Key, error)
+	CreateDroplet(droplet domain.DropletRequest, token string) (*domain.Droplet, error)
 }
 
 type UserRepo interface {
@@ -107,4 +108,31 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(keyB)
+}
+
+func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+
+	token := req.Header.Get("token")
+
+	decoder := json.NewDecoder(req.Body)
+	dropletRequest := domain.DropletRequest{}
+
+	err := decoder.Decode(&dropletRequest)
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	droplet, err := handler.Interactor.CreateDroplet(dropletRequest, token)
+	if err != nil {
+		fmt.Println(err.Error())
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	b, _ := json.Marshal(droplet)
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	res.Write(b)
 }

@@ -22,6 +22,7 @@ func main() {
 	r.HandleFunc("/do_callback", handler.DOCallback).Methods("GET")
 	r.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
 	r.HandleFunc("/keys", handler.CreateKey).Methods("POST")
+	r.HandleFunc("/droplets", handler.CreateDroplet).Methods("POST")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
