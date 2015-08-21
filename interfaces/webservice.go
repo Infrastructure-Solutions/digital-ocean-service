@@ -9,7 +9,7 @@ import (
 )
 
 type DOInteractor interface {
-	GetOauthURL(id, redirectURI, scope string) string
+	GetOauthURL(id, redirectURI string, scope []string) string
 	GetToken(code, id, secret, redirectURL string) (*domain.DOToken, error)
 	ShowKeys(token string) ([]domain.Key, error)
 	CreateKey(name, publicKey, token string) (*domain.Key, error)
@@ -26,11 +26,12 @@ type WebServiceHandler struct {
 	ID          string
 	Secret      string
 	RedirectURI string
+	Scopes      []string
 }
 
 func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Request) {
 
-	url := handler.Interactor.GetOauthURL(handler.ID, handler.RedirectURI, "read write")
+	url := handler.Interactor.GetOauthURL(handler.ID, handler.RedirectURI, handler.Scopes)
 
 	htmlIndex := `<html><body>
                 Log in with <a href="` + url + `">Digital Ocean</a>
