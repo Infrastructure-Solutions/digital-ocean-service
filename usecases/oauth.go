@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/digital-ocean-service/domain"
 )
@@ -13,12 +14,15 @@ type DOInteractor struct {
 
 const authURL = "https://cloud.digitalocean.com/v1/oauth/authorize"
 
-func (interactor DOInteractor) GetOauthURL(id, redirectURI, scope string) string {
+func (interactor DOInteractor) GetOauthURL(id, redirectURI string, scope []string) string {
+
+	scp := strings.Join(scope, " ")
+
 	u, _ := url.Parse(authURL)
 	q := u.Query()
 	q.Set("client_id", id)
 	q.Set("redirect_uri", redirectURI)
-	q.Set("scope", scope)
+	q.Set("scope", scp)
 	q.Set("response_type", "code")
 
 	u.RawQuery = q.Encode()

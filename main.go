@@ -1,20 +1,39 @@
 package main
 
 import (
+	"bytes"
+	"flag"
+	"fmt"
+
 	"github.com/codegangsta/negroni"
+	"github.com/digital-ocean-service/infraestructure"
 	"github.com/digital-ocean-service/interfaces"
 	"github.com/digital-ocean-service/usecases"
 	"github.com/gorilla/mux"
 )
 
+const defaultPath = "/etc/digital-ocean-service.conf"
+
+var confFilePath = flag.String("conf", defaultPath, "Custom path for configuration file")
+
 func main() {
+
+	flag.Parse()
+
+	config, err := infraestructure.GetConfiguration(*confFilePath)
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Cannot parse configuration")
+	}
+
 	doInteractor := usecases.DOInteractor{}
 
 	handler := interfaces.WebServiceHandler{
 		Interactor:  doInteractor,
-		ID:          "",
-		Secret:      "",
-		RedirectURI: "http://localhost:7000/do_callback",
+		ID:          config.ClientID,
+		Secret:      config.ClientSecret,
+		Scopes:      config.Scopes,
+		RedirectURI: config.RedirectURI,
 	}
 
 	r := mux.NewRouter()
@@ -27,6 +46,12 @@ func main() {
 
 	n := negroni.Classic()
 	n.UseHandler(r)
-	n.Run(":7000")
+
+	port := bytes.Buffer{}
+
+	port.WriteString(":")
+	port.WriteString(config.Port)
+
+	n.Run(port.String())
 
 }
