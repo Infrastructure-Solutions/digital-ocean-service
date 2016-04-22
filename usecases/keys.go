@@ -3,7 +3,7 @@ package usecases
 import (
 	"fmt"
 
-	"github.com/digital-ocean-service/domain"
+	"github.com/Tinker-Ware/digital-ocean-service/domain"
 	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 )

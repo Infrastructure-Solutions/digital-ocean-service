@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/digital-ocean-service/domain"
+	"github.com/Tinker-Ware/digital-ocean-service/domain"
 )
 
 type DOInteractor interface {

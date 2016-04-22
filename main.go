@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/negroni"
-	"github.com/digital-ocean-service/infraestructure"
+	"github.com/digital-ocean-service/infrastructure"
 	"github.com/digital-ocean-service/interfaces"
 	"github.com/digital-ocean-service/usecases"
 	"github.com/gorilla/mux"
@@ -20,7 +20,7 @@ func main() {
 
 	flag.Parse()
 
-	config, err := infraestructure.GetConfiguration(*confFilePath)
+	config, err := infrastructure.GetConfiguration(*confFilePath)
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("Cannot parse configuration")
