@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/negroni"
-	"github.com/digital-ocean-service/infrastructure"
+	"github.com/Tinker-Ware/digital-ocean-service/infrastructure"
 	"github.com/digital-ocean-service/interfaces"
 	"github.com/digital-ocean-service/usecases"
 	"github.com/gorilla/mux"

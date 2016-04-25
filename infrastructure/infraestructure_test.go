@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/digital-ocean-service/infrastructure"
+	. "github.com/Tinker-Ware/digital-ocean-service/infrastructure"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
