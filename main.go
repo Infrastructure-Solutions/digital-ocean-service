@@ -7,8 +7,8 @@ import (
 
 	"github.com/codegangsta/negroni"
 	"github.com/Tinker-Ware/digital-ocean-service/infrastructure"
-	"github.com/digital-ocean-service/interfaces"
-	"github.com/digital-ocean-service/usecases"
+	"github.com/Tinker-Ware/digital-ocean-service/interfaces"
+	"github.com/Tinker-Ware/digital-ocean-service/usecases"
 	"github.com/gorilla/mux"
 )
 
