@@ -3,7 +3,7 @@ package interfaces
 import (
 	"errors"
 
-	"github.com/digital-ocean-service/domain"
+	"github.com/Tinker-Ware/digital-ocean-service/domain"
 )
 
 type FakeUserRepo struct {

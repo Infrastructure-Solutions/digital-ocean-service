@@ -1,16 +1,16 @@
-package infraestructure_test
+package infrastructure_test
 
 import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/digital-ocean-service/infraestructure"
+	. "github.com/Tinker-Ware/digital-ocean-service/infrastructure"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Infraestructure", func() {
+var _ = Describe("infrastructure", func() {
 
 	Describe("Read a YAML", func() {
 		Context("Create a YAML on the fly", func() {

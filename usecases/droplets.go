@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"github.com/digital-ocean-service/domain"
+	"github.com/Tinker-Ware/digital-ocean-service/domain"
 	"github.com/digitalocean/godo"
 	"github.com/jinzhu/copier"
 )
