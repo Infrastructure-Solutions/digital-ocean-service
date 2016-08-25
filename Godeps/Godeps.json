@@ -1,11 +1,11 @@
 {
 	"ImportPath": "github.com/Tinker-Ware/digital-ocean-service",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.6",
 	"GodepVersion": "v73",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/negroni",
-			"Comment": "v0.1-70-gc7477ad",
+			"Comment": "v0.1.0-70-gc7477ad",
 			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
 		},
 		{
