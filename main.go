@@ -5,10 +5,10 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/codegangsta/negroni"
 	"github.com/Tinker-Ware/digital-ocean-service/infrastructure"
 	"github.com/Tinker-Ware/digital-ocean-service/interfaces"
 	"github.com/Tinker-Ware/digital-ocean-service/usecases"
+	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 )
 
