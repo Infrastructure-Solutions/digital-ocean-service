@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Configuration holds the values necessary to configure the application
 type Configuration struct {
 	Port         string   `yaml:"port"`
 	ClientID     string   `yaml:"clientID"`
@@ -14,6 +15,8 @@ type Configuration struct {
 	Scopes       []string `yaml:"scopes,flow"`
 }
 
+// GetConfiguration reads the file with the configuration and returns an struct
+// with the fields
 func GetConfiguration(path string) (*Configuration, error) {
 
 	data, err := ioutil.ReadFile(path)

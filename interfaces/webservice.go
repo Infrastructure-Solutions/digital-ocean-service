@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// DOInteractor defines the functions that the digital ocean interactor should perform
 type DOInteractor interface {
 	GetOauthURL(id, redirectURI string, scope []string) string
 	GetToken(code, id, secret, redirectURL string) (*domain.DOToken, error)
@@ -21,12 +22,9 @@ type DOInteractor interface {
 	GetDroplet(id int, token string) (*usecases.Instance, error)
 }
 
-type UserRepo interface {
-}
-
+// WebServiceHandler has the necessary fields for a web interface to perform its operations
 type WebServiceHandler struct {
 	Interactor  DOInteractor
-	UserRepo    UserRepo
 	ID          string
 	Secret      string
 	RedirectURI string
@@ -37,6 +35,7 @@ type instanceResponse struct {
 	Instance *usecases.Instance `json:"instance"`
 }
 
+// Login is a helper method to create an OAUTH token
 func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Request) {
 
 	url := handler.Interactor.GetOauthURL(handler.ID, handler.RedirectURI, handler.Scopes)
@@ -53,6 +52,7 @@ func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Reques
 
 const providerToken string = "provider-token"
 
+// DOCallback receives the OAUTH callback from Digital Ocean
 func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.Request) {
 	code := req.FormValue("code")
 
@@ -77,6 +77,7 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 }
 
+// ShowKeys returns all the keys of an user in the different providers
 func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Request) {
 	token := req.Header.Get(providerToken)
 	keys, err := handler.Interactor.ShowKeys(token)
@@ -94,6 +95,7 @@ func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Req
 
 }
 
+// CreateKey saves a key in a provider
 func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Request) {
 
 	defer req.Body.Close()
@@ -122,6 +124,7 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 	res.Write(keyB)
 }
 
+// CreateDroplet creates a droplet in Digital Ocean
 func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
@@ -152,6 +155,7 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 	res.Write(b)
 }
 
+// ListDroplets lists all the droplets in Digital Ocean
 func (handler WebServiceHandler) ListDroplets(res http.ResponseWriter, req *http.Request) {
 	token := req.Header.Get(providerToken)
 

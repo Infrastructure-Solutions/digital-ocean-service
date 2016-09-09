@@ -1,5 +1,6 @@
 package domain
 
+// DropletRequest is the request used to create a droplet in Digital Ocean
 type DropletRequest struct {
 	Name              string `json:"name"`
 	Region            string `json:"region"`
@@ -12,6 +13,7 @@ type DropletRequest struct {
 	SSHKeys           []Key  `json:"ssh_keys"`
 }
 
+// Droplet represents a droplet inside Digital Ocean
 type Droplet struct {
 	ID                int      `json:"id"`
 	Name              string   `json:"name"`
@@ -24,17 +26,21 @@ type Droplet struct {
 	SSHKeys           []Key    `json:"ssh_keys"`
 }
 
+// Networks the networks a droplet has
 type Networks struct {
 	V4 []NetworkV4 `json:"v4"`
 	V6 []NetworkV6 `json:"v6"`
 }
 
+// NetworkV6 The representation of a V6 network
 type NetworkV6 struct {
 	IPAddress string `json:"ip_address,omitempty"`
 	Netmask   int    `json:"netmask,omitempty"`
 	Gateway   string `json:"gateway,omitempty"`
 	Type      string `json:"type,omitempty"`
 }
+
+// NetworkV4 represents a V4 network
 type NetworkV4 struct {
 	IPAddress string `json:"ip_address,omitempty"`
 	Netmask   string `json:"netmask,omitempty"`

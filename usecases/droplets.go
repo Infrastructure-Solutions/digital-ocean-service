@@ -6,11 +6,13 @@ import (
 	"github.com/jinzhu/copier"
 )
 
+// Instance represens a created instance in any provider
 type Instance struct {
 	Provider string `json:"provider"`
 	domain.Droplet
 }
 
+// CreateDroplet creates a doplet in Digital Ocean
 func (interactor DOInteractor) CreateDroplet(droplet domain.DropletRequest, token string) (*Instance, error) {
 	client := getClient(token)
 
@@ -79,6 +81,7 @@ func (interactor DOInteractor) CreateDroplet(droplet domain.DropletRequest, toke
 
 }
 
+// ListDroplets lists all the droplets a user has in Digital Ocean
 func (interactor DOInteractor) ListDroplets(token string) ([]domain.Droplet, error) {
 
 	client := getClient(token)
