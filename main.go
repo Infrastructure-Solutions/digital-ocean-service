@@ -38,14 +38,15 @@ func main() {
 
 	r := mux.NewRouter()
 
-	subrouter := r.PathPrefix("/digitalocean").Subrouter()
+	subrouter := r.PathPrefix("/api/v1/cloud").Subrouter()
 
 	subrouter.HandleFunc("/", handler.Login)
 	subrouter.HandleFunc("/do_callback", handler.DOCallback).Methods("GET")
 	subrouter.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
 	subrouter.HandleFunc("/keys", handler.CreateKey).Methods("POST")
-	subrouter.HandleFunc("/droplets", handler.CreateDroplet).Methods("POST")
-	subrouter.HandleFunc("/droplets", handler.ListDroplets).Methods("GET")
+	subrouter.HandleFunc("/instances", handler.CreateDroplet).Methods("POST")
+	subrouter.HandleFunc("/instances", handler.ListDroplets).Methods("GET")
+	subrouter.HandleFunc("/instance/{instanceID}", handler.GetInstance).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
