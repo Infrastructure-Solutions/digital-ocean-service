@@ -9,11 +9,14 @@ import (
 	"github.com/Tinker-Ware/digital-ocean-service/domain"
 )
 
+// DOInteractor embeds an has the necessary fields to interact with the
+// Digital Ocean API
 type DOInteractor struct {
 }
 
 const authURL = "https://cloud.digitalocean.com/v1/oauth/authorize"
 
+// GetOauthURL returns the oauth URL
 func (interactor DOInteractor) GetOauthURL(id, redirectURI string, scope []string) string {
 
 	scp := strings.Join(scope, " ")
@@ -30,6 +33,7 @@ func (interactor DOInteractor) GetOauthURL(id, redirectURI string, scope []strin
 	return u.String()
 }
 
+// GetToken returns a token from Digital Ocean
 func (interactor DOInteractor) GetToken(code, id, secret, redirectURL string) (*domain.DOToken, error) {
 	u, _ := url.Parse("https://cloud.digitalocean.com/v1/oauth/token")
 	q := u.Query()

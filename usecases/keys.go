@@ -8,6 +8,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// ShowKeys shoes all the keys from Digital Ocean
 func (interactor DOInteractor) ShowKeys(token string) ([]domain.Key, error) {
 
 	client := getClient(token)
@@ -43,6 +44,7 @@ func getClient(token string) *godo.Client {
 	return client
 }
 
+// CreateKey creates all the keys in the Digital Ocean provider
 func (interactor DOInteractor) CreateKey(name, publicKey, token string) (*domain.Key, error) {
 
 	client := getClient(token)
