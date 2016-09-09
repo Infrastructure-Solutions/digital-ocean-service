@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Tinker-Ware/digital-ocean-service/domain"
 	"github.com/Tinker-Ware/digital-ocean-service/usecases"
+	"github.com/gorilla/mux"
 )
 
 // DOInteractor defines the functions that the digital ocean interactor should perform
@@ -17,6 +19,7 @@ type DOInteractor interface {
 	CreateKey(name, publicKey, token string) (*domain.Key, error)
 	CreateDroplet(droplet domain.DropletRequest, token string) (*usecases.Instance, error)
 	ListDroplets(token string) ([]domain.Droplet, error)
+	GetDroplet(id int, token string) (*usecases.Instance, error)
 }
 
 // WebServiceHandler has the necessary fields for a web interface to perform its operations
@@ -47,6 +50,8 @@ func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Reques
 
 }
 
+const providerToken string = "provider-token"
+
 // DOCallback receives the OAUTH callback from Digital Ocean
 func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.Request) {
 	code := req.FormValue("code")
@@ -74,7 +79,7 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 // ShowKeys returns all the keys of an user in the different providers
 func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Request) {
-	token := req.Header.Get("token")
+	token := req.Header.Get(providerToken)
 	keys, err := handler.Interactor.ShowKeys(token)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -95,7 +100,7 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 
 	defer req.Body.Close()
 
-	token := req.Header.Get("token")
+	token := req.Header.Get(providerToken)
 
 	key := &domain.Key{}
 
@@ -123,7 +128,7 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
-	token := req.Header.Get("token")
+	token := req.Header.Get(providerToken)
 
 	decoder := json.NewDecoder(req.Body)
 	dropletRequest := domain.DropletRequest{}
@@ -152,7 +157,7 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 
 // ListDroplets lists all the droplets in Digital Ocean
 func (handler WebServiceHandler) ListDroplets(res http.ResponseWriter, req *http.Request) {
-	token := req.Header.Get("token")
+	token := req.Header.Get(providerToken)
 
 	droplets, err := handler.Interactor.ListDroplets(token)
 	if err != nil {
@@ -164,4 +169,28 @@ func (handler WebServiceHandler) ListDroplets(res http.ResponseWriter, req *http
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(dB)
+}
+
+// GetInstance gets an instance from any provider
+func (handler WebServiceHandler) GetInstance(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get(providerToken)
+	vars := mux.Vars(req)
+	id := vars["instanceID"]
+	instanceID, _ := strconv.Atoi(id)
+
+	droplet, err := handler.Interactor.GetDroplet(instanceID, token)
+	if err != nil {
+		res.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	response := instanceResponse{
+		Instance: droplet,
+	}
+
+	dB, _ := json.Marshal(response)
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusOK)
+	res.Write(dB)
+
 }

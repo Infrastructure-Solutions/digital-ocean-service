@@ -119,3 +119,58 @@ func (interactor DOInteractor) ListDroplets(token string) ([]domain.Droplet, err
 
 	return droplets, nil
 }
+
+// GetDroplet gets a single droplet
+func (interactor DOInteractor) GetDroplet(id int, token string) (*Instance, error) {
+	client := getClient(token)
+
+	droplet, _, err := client.Droplets.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	instance := Instance{
+		Provider: "digital_ocean",
+		Droplet: domain.Droplet{
+			ID:                droplet.ID,
+			Name:              droplet.Name,
+			Region:            droplet.Region.Slug,
+			OperatingSystem:   droplet.Image.Slug,
+			PrivateNetworking: false,
+			InstanceName:      droplet.Size.Slug,
+		},
+	}
+
+	networksV4 := []domain.NetworkV4{}
+	for _, net := range droplet.Networks.V4 {
+		n := domain.NetworkV4{
+			IPAddress: net.IPAddress,
+			Netmask:   net.Netmask,
+			Gateway:   net.Gateway,
+			Type:      net.Type,
+		}
+
+		networksV4 = append(networksV4, n)
+	}
+
+	networksV6 := []domain.NetworkV6{}
+	for _, net := range droplet.Networks.V6 {
+		n := domain.NetworkV6{
+			IPAddress: net.IPAddress,
+			Netmask:   net.Netmask,
+			Gateway:   net.Gateway,
+			Type:      net.Type,
+		}
+
+		networksV6 = append(networksV6, n)
+
+	}
+	networks := domain.Networks{
+		V4: networksV4,
+		V6: networksV6,
+	}
+
+	instance.Networks = networks
+
+	return &instance, nil
+}
