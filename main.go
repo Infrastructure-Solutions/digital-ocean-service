@@ -46,7 +46,7 @@ func main() {
 	subrouter := r.PathPrefix("/api/v1/cloud").Subrouter()
 
 	subrouter.HandleFunc("/", handler.Login)
-	subrouter.HandleFunc("/do_callback", handler.DOCallback).Methods("GET")
+	subrouter.HandleFunc("/do_callback", handler.DOCallback).Methods("POST")
 	subrouter.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
 	subrouter.HandleFunc("/keys", handler.CreateKey).Methods("POST")
 	subrouter.HandleFunc("/instances", handler.CreateDroplet).Methods("POST")
