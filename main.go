@@ -35,6 +35,7 @@ func main() {
 		Secret:      config.ClientSecret,
 		Scopes:      config.Scopes,
 		RedirectURI: config.RedirectURI,
+		APIHost:     config.APIHost,
 	}
 
 	headers := handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Authorization"})

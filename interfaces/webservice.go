@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -29,6 +30,7 @@ type WebServiceHandler struct {
 	Secret      string
 	RedirectURI string
 	Scopes      []string
+	APIHost     string
 }
 
 type instanceResponse struct {
@@ -52,28 +54,102 @@ func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Reques
 
 const providerToken string = "provider-token"
 
+type oauthWrapper struct {
+	OauthRequest oauthRequest `json:"oauth_request"`
+}
+
+type oauthRequest struct {
+	UserID int    `json:"user_id"`
+	Code   string `json:"code"`
+	State  string `json:"state"`
+}
+
+type integrationWrapper struct {
+	Integration integration `json:"integration"`
+}
+
+type integration struct {
+	UserID     int    `json:"user_id"`
+	Token      string `json:"token"`
+	Username   string `json:"username"`
+	Provider   string `json:"provider"`
+	ExpireDate int    `json:"expire_date"`
+}
+
+type callbackResponse struct {
+	Callback callback `json:"callback"`
+}
+
+type callback struct {
+	Provider string `json:"provider"`
+	Username string `json:"username"`
+}
+
+const integrationURL string = "/api/v1/users/%d/integration"
+
 // DOCallback receives the OAUTH callback from Digital Ocean
 func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.Request) {
-	code := req.FormValue("code")
+	defer req.Body.Close()
 
-	token, err := handler.Interactor.GetToken(code, handler.ID, handler.Secret, handler.RedirectURI)
+	userToken := req.Header.Get("Authorization")
+
+	decoder := json.NewDecoder(req.Body)
+
+	var oauthwrapper oauthWrapper
+
+	err := decoder.Decode(&oauthwrapper)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	token, err := handler.Interactor.GetToken(oauthwrapper.OauthRequest.Code, handler.ID, handler.Secret, handler.RedirectURI)
 	if err != nil {
 		fmt.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	b, err := json.Marshal(token)
-	if err != nil {
-		fmt.Println(err.Error())
+	wrapper := integrationWrapper{
+		Integration: integration{
+			UserID:     oauthwrapper.OauthRequest.UserID,
+			Token:      token.AccessToken,
+			Provider:   "digital_ocean",
+			Username:   token.Info.Name,
+			ExpireDate: token.ExpiresIn,
+		},
+	}
 
+	reqBytes, _ := json.Marshal(&wrapper)
+
+	buf := bytes.NewBuffer(reqBytes)
+
+	path := fmt.Sprintf(integrationURL, oauthwrapper.OauthRequest.UserID)
+
+	request, _ := http.NewRequest(http.MethodPost, handler.APIHost+path, buf)
+	request.Header.Add("Authorization", userToken)
+	request.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+
+	resp, _ := client.Do(request)
+	if resp.StatusCode != http.StatusCreated {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	response := callbackResponse{
+		Callback: callback{
+			Provider: "github",
+			Username: token.Info.Name,
+		},
+	}
+
+	respBytes, _ := json.Marshal(&response)
 
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	res.Write(b)
+	res.WriteHeader(http.StatusCreated)
+	res.Write(respBytes)
 
 }
 
