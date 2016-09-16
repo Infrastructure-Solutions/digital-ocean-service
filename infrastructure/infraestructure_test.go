@@ -20,6 +20,7 @@ clientID: asdfg
 clientSecret: aoihcou
 redirectURI: http://localhost/oauth
 port: 1000
+apihost: http://localhost/api
 scopes:
   - read
   - write`

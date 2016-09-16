@@ -1,0 +1,8 @@
+---
+clientID: asdfg
+clientSecret: aoihcou
+redirectURI: http://localhost/oauth
+port: 1000
+scopes:
+  - read
+  - write
