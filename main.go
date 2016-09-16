@@ -9,6 +9,7 @@ import (
 	"github.com/Tinker-Ware/digital-ocean-service/interfaces"
 	"github.com/Tinker-Ware/digital-ocean-service/usecases"
 	"github.com/codegangsta/negroni"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -36,6 +37,9 @@ func main() {
 		RedirectURI: config.RedirectURI,
 	}
 
+	headers := handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Authorization"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost", "http://192.168.33.10", "http://*.tinkerware.io", "https://*.tinkerware.io"})
+
 	r := mux.NewRouter()
 
 	subrouter := r.PathPrefix("/api/v1/cloud").Subrouter()
@@ -49,7 +53,7 @@ func main() {
 	subrouter.HandleFunc("/instance/{instanceID}", handler.GetInstance).Methods("GET")
 
 	n := negroni.Classic()
-	n.UseHandler(r)
+	n.UseHandler(handlers.CORS(headers, origins)(r))
 
 	port := bytes.Buffer{}
 
