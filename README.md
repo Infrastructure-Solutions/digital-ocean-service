@@ -15,6 +15,7 @@ A configuration file must be provided, the default route for the file is located
   clientID: asdfg
   clientSecret: aoihcou
   redirectURI: http://localhost/oauth
+  apihost: http://api.example
   port: 1000
   scopes:
   - read
