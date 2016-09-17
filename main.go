@@ -35,22 +35,23 @@ func main() {
 		Secret:      config.ClientSecret,
 		Scopes:      config.Scopes,
 		RedirectURI: config.RedirectURI,
+		APIHost:     config.APIHost,
 	}
 
 	headers := handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Authorization"})
-	origins := handlers.AllowedOrigins([]string{"http://localhost", "http://192.168.33.10", "http://*.tinkerware.io", "https://*.tinkerware.io"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost", "http://provision.tinkerware.io", "https://provision.tinkerware.io"})
 
 	r := mux.NewRouter()
 
 	subrouter := r.PathPrefix("/api/v1/cloud").Subrouter()
 
-	subrouter.HandleFunc("/", handler.Login)
-	subrouter.HandleFunc("/do_callback", handler.DOCallback).Methods("GET")
-	subrouter.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
-	subrouter.HandleFunc("/keys", handler.CreateKey).Methods("POST")
-	subrouter.HandleFunc("/instances", handler.CreateDroplet).Methods("POST")
-	subrouter.HandleFunc("/instances", handler.ListDroplets).Methods("GET")
-	subrouter.HandleFunc("/instance/{instanceID}", handler.GetInstance).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/", handler.Login)
+	subrouter.HandleFunc("/digital_ocean/oauth", handler.DOCallback).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/keys", handler.ShowKeys).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/keys", handler.CreateKey).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/instances", handler.CreateDroplet).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/instances", handler.ListDroplets).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/instance/{instanceID}", handler.GetInstance).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(handlers.CORS(headers, origins)(r))
