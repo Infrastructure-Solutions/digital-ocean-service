@@ -45,13 +45,13 @@ func main() {
 
 	subrouter := r.PathPrefix("/api/v1/cloud").Subrouter()
 
-	subrouter.HandleFunc("/", handler.Login)
-	subrouter.HandleFunc("/do_callback", handler.DOCallback).Methods("POST")
-	subrouter.HandleFunc("/keys", handler.ShowKeys).Methods("GET")
-	subrouter.HandleFunc("/keys", handler.CreateKey).Methods("POST")
-	subrouter.HandleFunc("/instances", handler.CreateDroplet).Methods("POST")
-	subrouter.HandleFunc("/instances", handler.ListDroplets).Methods("GET")
-	subrouter.HandleFunc("/instance/{instanceID}", handler.GetInstance).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/", handler.Login)
+	subrouter.HandleFunc("/digital_ocean/oauth", handler.DOCallback).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/keys", handler.ShowKeys).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/keys", handler.CreateKey).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/instances", handler.CreateDroplet).Methods("POST")
+	subrouter.HandleFunc("/digital_ocean/instances", handler.ListDroplets).Methods("GET")
+	subrouter.HandleFunc("/digital_ocean/instance/{instanceID}", handler.GetInstance).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(handlers.CORS(headers, origins)(r))
