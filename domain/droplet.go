@@ -18,9 +18,9 @@ type Droplet struct {
 	ID                int      `json:"id"`
 	Name              string   `json:"name"`
 	Region            string   `json:"region"`
-	InstanceName      string   `json:"size"`
+	InstanceName      string   `json:"instance_name"`
 	OperatingSystem   string   `json:"operating_system"`
-	IPV6              string   `json:"ipv6,omitempty"`
+	IPV6              bool     `json:"ipv6,omitempty"`
 	PrivateNetworking bool     `json:"private_networking"`
 	Networks          Networks `json:"networks"`
 	SSHKeys           []Key    `json:"ssh_keys"`
