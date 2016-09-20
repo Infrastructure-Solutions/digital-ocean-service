@@ -8,7 +8,7 @@ import (
 
 // Instance represens a created instance in any provider
 type Instance struct {
-	Provider string `json:"provider"`
+	Provider string `json:"provider,omitempty"`
 	domain.Droplet
 }
 
