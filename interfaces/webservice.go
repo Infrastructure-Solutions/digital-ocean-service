@@ -33,10 +33,6 @@ type WebServiceHandler struct {
 	APIHost     string
 }
 
-type instanceResponse struct {
-	Instance *usecases.Instance `json:"instance"`
-}
-
 // Login is a helper method to create an OAUTH token
 func (handler WebServiceHandler) Login(res http.ResponseWriter, req *http.Request) {
 
@@ -153,6 +149,10 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 }
 
+type keysWrapper struct {
+	Keys []domain.Key `json:"keys"`
+}
+
 // ShowKeys returns all the keys of an user in the different providers
 func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Request) {
 	token := req.Header.Get(providerToken)
@@ -163,12 +163,20 @@ func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Req
 		return
 	}
 
-	keysB, _ := json.Marshal(keys)
+	wrapper := keysWrapper{
+		Keys: keys,
+	}
+
+	keysB, _ := json.Marshal(&wrapper)
 
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
 	res.Write(keysB)
 
+}
+
+type keywrapper struct {
+	Key domain.Key `json:"key"`
 }
 
 // CreateKey saves a key in a provider
@@ -178,26 +186,32 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 
 	token := req.Header.Get(providerToken)
 
-	key := &domain.Key{}
+	wrapper := keywrapper{}
 
 	decoder := json.NewDecoder(req.Body)
 
-	err := decoder.Decode(key)
+	err := decoder.Decode(&wrapper)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	key, err = handler.Interactor.CreateKey(key.Name, key.PublicKey, token)
+	key, err := handler.Interactor.CreateKey(wrapper.Key.Name, wrapper.Key.PublicKey, token)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	keyB, _ := json.Marshal(key)
+	wrapper.Key = *key
+
+	keyB, _ := json.Marshal(&wrapper)
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(keyB)
+}
+
+type instanceWrapper struct {
+	Instance usecases.Instance `json:"instance"`
 }
 
 // CreateDroplet creates a droplet in Digital Ocean
@@ -207,25 +221,40 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 	token := req.Header.Get(providerToken)
 
 	decoder := json.NewDecoder(req.Body)
-	dropletRequest := domain.DropletRequest{}
+	wrapper := instanceWrapper{}
 
-	err := decoder.Decode(&dropletRequest)
+	err := decoder.Decode(&wrapper)
 	if err != nil {
 		fmt.Println(err)
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	instance, err := handler.Interactor.CreateDroplet(dropletRequest, token)
+	instance := wrapper.Instance
+
+	fmt.Printf("%+v\n", instance)
+
+	dropletRequest := domain.DropletRequest{
+		Name:              instance.Name,
+		Region:            instance.Region,
+		Size:              instance.InstanceName,
+		Image:             instance.OperatingSystem,
+		Backups:           false,
+		IPv6:              instance.IPV6,
+		PrivateNetworking: instance.PrivateNetworking,
+		SSHKeys:           instance.SSHKeys,
+	}
+
+	resInstance, err := handler.Interactor.CreateDroplet(dropletRequest, token)
 	if err != nil {
 		fmt.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	resInstance := instanceResponse{
-		Instance: instance,
-	}
-	b, _ := json.Marshal(&resInstance)
+
+	wrapper.Instance = *resInstance
+
+	b, _ := json.Marshal(&wrapper)
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(b)
@@ -260,8 +289,8 @@ func (handler WebServiceHandler) GetInstance(res http.ResponseWriter, req *http.
 		return
 	}
 
-	response := instanceResponse{
-		Instance: droplet,
+	response := instanceWrapper{
+		Instance: *droplet,
 	}
 
 	dB, _ := json.Marshal(response)
