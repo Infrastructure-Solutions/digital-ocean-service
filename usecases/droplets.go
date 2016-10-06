@@ -32,7 +32,6 @@ func (interactor DOInteractor) CreateDroplet(droplet domain.DropletRequest, toke
 	sshkeys := []godo.DropletCreateSSHKey{}
 	for _, key := range droplet.SSHKeys {
 		k := godo.DropletCreateSSHKey{
-			ID:          key.ID,
 			Fingerprint: key.Fingerprint,
 		}
 		sshkeys = append(sshkeys, k)
