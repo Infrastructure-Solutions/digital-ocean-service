@@ -136,7 +136,7 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 	response := callbackResponse{
 		Callback: callback{
-			Provider: "github",
+			Provider: "digital_ocean",
 			Username: token.Info.Name,
 		},
 	}
