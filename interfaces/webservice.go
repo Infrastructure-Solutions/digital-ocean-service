@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -21,6 +22,10 @@ type DOInteractor interface {
 	CreateDroplet(droplet domain.DropletRequest, token string) (*usecases.Instance, error)
 	ListDroplets(token string) ([]domain.Droplet, error)
 	GetDroplet(id int, token string) (*usecases.Instance, error)
+}
+
+type httpError struct {
+	Error string `json:"error"`
 }
 
 // WebServiceHandler has the necessary fields for a web interface to perform its operations
@@ -95,14 +100,32 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 	err := decoder.Decode(&oauthwrapper)
 	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+		log.Println(err.Error())
+		// Go 1.7 has this as a constans meanwhile we will use it as a number
+		// which is unprocessable entity btw.
+		res.WriteHeader(422)
+
+		httperr := httpError{
+			Error: "cannot parse request",
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
 	token, err := handler.Interactor.GetToken(oauthwrapper.OauthRequest.Code, handler.ID, handler.Secret, handler.RedirectURI)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
+		httperr := httpError{
+			Error: err.Error(),
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+		res.Write(respBytes)
 		return
 	}
 
@@ -130,7 +153,16 @@ func (handler WebServiceHandler) DOCallback(res http.ResponseWriter, req *http.R
 
 	resp, _ := client.Do(request)
 	if resp.StatusCode != http.StatusCreated {
+		log.Printf("Cannot save integration, status code is %d\n", resp.StatusCode)
 		res.WriteHeader(http.StatusInternalServerError)
+
+		httperr := httpError{
+			Error: "cannot save integration, bad request",
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
@@ -158,8 +190,16 @@ func (handler WebServiceHandler) ShowKeys(res http.ResponseWriter, req *http.Req
 	token := req.Header.Get(providerToken)
 	keys, err := handler.Interactor.ShowKeys(token)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
+		httperr := httpError{
+			Error: err.Error(),
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
@@ -192,13 +232,33 @@ func (handler WebServiceHandler) CreateKey(res http.ResponseWriter, req *http.Re
 
 	err := decoder.Decode(&wrapper)
 	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+		log.Println(err.Error())
+		// Go 1.7 has this as a constans meanwhile we will use it as a number
+		// which is unprocessable entity btw.
+		res.WriteHeader(422)
+		httperr := httpError{
+			Error: "cannot save integration, bad request",
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
 	key, err := handler.Interactor.CreateKey(wrapper.Key.Name, wrapper.Key.PublicKey, token)
 	if err != nil {
+		log.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
+		httperr := httpError{
+			Error: "cannot save integration, bad request",
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
@@ -225,14 +285,23 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 
 	err := decoder.Decode(&wrapper)
 	if err != nil {
-		fmt.Println(err)
-		res.WriteHeader(http.StatusBadRequest)
+		log.Println(err.Error())
+
+		// Go 1.7 has this as a constans meanwhile we will use it as a number
+		// which is unprocessable entity btw.
+		res.WriteHeader(422)
+		httperr := httpError{
+			Error: "cannot save integration, bad request",
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
 	instance := wrapper.Instance
-
-	fmt.Printf("%+v\n", instance)
 
 	dropletRequest := domain.DropletRequest{
 		Name:              instance.Name,
@@ -247,8 +316,16 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 
 	resInstance, err := handler.Interactor.CreateDroplet(dropletRequest, token)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
+		httperr := httpError{
+			Error: err.Error(),
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
@@ -266,7 +343,16 @@ func (handler WebServiceHandler) ListDroplets(res http.ResponseWriter, req *http
 
 	droplets, err := handler.Interactor.ListDroplets(token)
 	if err != nil {
+		log.Println(err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
+		httperr := httpError{
+			Error: err.Error(),
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
 		return
 	}
 
