@@ -3,7 +3,6 @@ package usecases
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -56,7 +55,7 @@ func (interactor DOInteractor) GetToken(code, id, secret, redirectURL string) (*
 
 	defer res.Body.Close()
 	decoder := json.NewDecoder(res.Body)
-	fmt.Println(res.StatusCode)
+
 	if res.StatusCode != http.StatusOK {
 		errMap := map[string]string{}
 		decoder.Decode(&errMap)
