@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -52,8 +54,14 @@ func (interactor DOInteractor) GetToken(code, id, secret, redirectURL string) (*
 	}
 
 	defer res.Body.Close()
-
 	decoder := json.NewDecoder(res.Body)
+
+	if res.StatusCode != http.StatusOK {
+		errMap := map[string]string{}
+		decoder.Decode(&errMap)
+		log.Printf("OAUTH error %s: %s", errMap["error"], errMap["error_description"])
+		return nil, errors.New("Cannot create token")
+	}
 
 	accessToken := domain.DOToken{}
 
