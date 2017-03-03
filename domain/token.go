@@ -1,5 +1,7 @@
 package domain
 
+const TokenHeader = "token"
+
 // DOToken is the response of the OAUTH for Digital Ocean
 type DOToken struct {
 	AccessToken  string `json:"access_token"`

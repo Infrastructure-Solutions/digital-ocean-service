@@ -13,6 +13,7 @@ type Configuration struct {
 	ClientSecret string   `yaml:"clientSecret"`
 	RedirectURI  string   `yaml:"redirectURI"`
 	APIHost      string   `yaml:"apihost"`
+	Salt         string   `yaml:"salt"`
 	Scopes       []string `yaml:"scopes,flow"`
 }
 
