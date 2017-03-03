@@ -63,7 +63,7 @@ func GetToken(apiURL string, salt string) Adapter {
 				}
 			}
 
-			r.Header.Set("key", token)
+			r.Header.Set("provider-token", token)
 
 			h.ServeHTTP(w, r)
 		})
