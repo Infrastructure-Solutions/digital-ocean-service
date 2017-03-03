@@ -49,11 +49,10 @@ func main() {
 	subrouter.HandleFunc("/digital_ocean/", handler.Login)
 	subrouter.HandleFunc("/digital_ocean/oauth", handler.DOCallback).Methods("POST")
 	subrouter.HandleFunc("/digital_ocean/keys", handler.ShowKeys).Methods("GET")
-	subrouter.HandleFunc("/digital_ocean/keys", handler.CreateKey).Methods("POST")
+	subrouter.Handle("/digital_ocean/keys", interfaces.Adapt(http.HandlerFunc(handler.CreateKey), interfaces.GetToken(config.APIHost, config.Salt))).Methods("POST")
 	subrouter.HandleFunc("/digital_ocean/instances", handler.CreateDroplet).Methods("POST")
 	subrouter.HandleFunc("/digital_ocean/instances", handler.ListDroplets).Methods("GET")
 	subrouter.HandleFunc("/digital_ocean/instance/{instanceID}", handler.GetInstance).Methods("GET")
-	subrouter.Handle("/digital_ocean/keys", interfaces.Adapt(http.HandlerFunc(handler.CreateKey), interfaces.GetToken(config.APIHost, config.Salt))).Methods("POST")
 
 	n := negroni.Classic()
 	n.UseHandler(handlers.CORS(headers, origins)(r))
