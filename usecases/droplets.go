@@ -173,3 +173,10 @@ func (interactor DOInteractor) GetDroplet(id int, token string) (*Instance, erro
 
 	return &instance, nil
 }
+
+// DestroyDroplet destroys a droplet
+func (interactor DOInteractor) DestroyDroplet(id int, token string) error {
+	client := getClient(token)
+	_, err := client.Droplets.Delete(id)
+	return err
+}
