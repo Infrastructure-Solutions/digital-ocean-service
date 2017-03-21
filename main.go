@@ -53,6 +53,7 @@ func main() {
 	subrouter.HandleFunc("/digital_ocean/instances", handler.CreateDroplet).Methods("POST")
 	subrouter.HandleFunc("/digital_ocean/instances", handler.ListDroplets).Methods("GET")
 	subrouter.HandleFunc("/digital_ocean/instance/{instanceID}", handler.GetInstance).Methods("GET")
+	subrouter.Handle("/digital_ocean/instance/{instanceID}", interfaces.Adapt(http.HandlerFunc(handler.DestroyDroplet), interfaces.GetToken(config.APIHost, config.Salt))).Methods("DELETE")
 
 	n := negroni.Classic()
 	n.UseHandler(handlers.CORS(headers, origins)(r))

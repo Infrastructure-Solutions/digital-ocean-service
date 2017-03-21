@@ -22,6 +22,7 @@ type DOInteractor interface {
 	CreateDroplet(droplet domain.DropletRequest, token string) (*usecases.Instance, error)
 	ListDroplets(token string) ([]domain.Droplet, error)
 	GetDroplet(id int, token string) (*usecases.Instance, error)
+	DestroyDroplet(id int, token string) error
 }
 
 type httpError struct {
@@ -285,11 +286,7 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 
 	err := decoder.Decode(&wrapper)
 	if err != nil {
-		log.Println(err.Error())
-
-		// Go 1.7 has this as a constans meanwhile we will use it as a number
-		// which is unprocessable entity btw.
-		res.WriteHeader(422)
+		res.WriteHeader(http.StatusUnprocessableEntity)
 		httperr := httpError{
 			Error: "cannot save integration, bad request",
 		}
@@ -335,6 +332,30 @@ func (handler WebServiceHandler) CreateDroplet(res http.ResponseWriter, req *htt
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(b)
+}
+
+func (handler WebServiceHandler) DestroyDroplet(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get(providerToken)
+
+	vars := mux.Vars(req)
+	id := vars["instanceID"]
+	instanceID, _ := strconv.Atoi(id)
+
+	err := handler.Interactor.DestroyDroplet(instanceID, token)
+	if err != nil {
+		res.WriteHeader(http.StatusUnprocessableEntity)
+		httperr := httpError{
+			Error: fmt.Sprintf("cannot delete instance, %s", err.Error()),
+		}
+
+		respBytes, _ := json.Marshal(httperr)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(respBytes)
+		return
+	}
+
+	res.WriteHeader(http.StatusNoContent)
 }
 
 // ListDroplets lists all the droplets in Digital Ocean
