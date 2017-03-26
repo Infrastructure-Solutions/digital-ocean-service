@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/Tinker-Ware/digital-ocean-service",
-	"GoVersion": "go1.6",
-	"GodepVersion": "v73",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/negroni",
@@ -12,6 +12,46 @@
 			"ImportPath": "github.com/digitalocean/godo",
 			"Comment": "0.8.0-13-g0d77b00",
 			"Rev": "0d77b009a8e77c302d978200d37f410a48c938b4"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/aes",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/arrays",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/base64url",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/compact",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/kdf",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/keys/ecc",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
+		},
+		{
+			"ImportPath": "github.com/dvsekhvalnov/jose2go/padding",
+			"Comment": "v1.2-3-g2a04a55",
+			"Rev": "2a04a552f4a8adf7d51731877b7a2021bab968bb"
 		},
 		{
 			"ImportPath": "github.com/google/go-querystring/query",
